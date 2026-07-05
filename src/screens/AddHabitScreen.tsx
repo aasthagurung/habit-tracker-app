@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, globalStyles } from '../styles/globalStyles';
 import { storage } from '../utils/storage';
 
+
 const COLOR_OPTIONS = [COLORS.pastelYellow, COLORS.pastelPink, COLORS.pastelPurple, COLORS.pastelBlue, COLORS.pastelGreen];
 
 export default function AddHabitScreen({ navigation }: any) {
@@ -16,7 +17,9 @@ export default function AddHabitScreen({ navigation }: any) {
       Alert.alert("Hold on!", "Please give your habit a name.");
       return;
     }
-    const current = await storage.getHabits();
+    // storage does not expose getHabits; retrieve user's profile which holds habits
+    const profile = await storage.getUserProfile();
+    const current = (profile && profile.habits) ? profile.habits : [];
     const newHabit = {
       id: Date.now().toString(),
       title,
@@ -25,6 +28,7 @@ export default function AddHabitScreen({ navigation }: any) {
       history: [],
       streak: 0,
     };
+    // save updated habits back to storage
     await storage.saveHabits([...current, newHabit]);
     setTitle('');
     setDesc('');
